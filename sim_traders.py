@@ -60,7 +60,7 @@ class Random_Traders:
                     self.interface.market_ask(stock, q, -1)
         return None
     
-    def limit_orders(self, stock=None, avg_price=None, vola=2.5, dist="normal", direction=None):
+    def limit_orders(self, stock=None, avg_price=None, vola=2.5, dist="normal", direction=None, **kwargs):
         trade_checks = np.random.uniform(size=self.n)
         for i in range(self.n):
             if trade_checks[i] <= self.p_limit:
@@ -77,9 +77,15 @@ class Random_Traders:
                     else:
                         price = np.random.normal(avg_price+vola/2, vola)
                 elif dist == "uniform":
-                    price = avg_price+(random.random()-0.5)*vola + vola/2
+                    if direction == "bid":
+                        price = avg_price+(random.random()-0.5)*vola + vola/2
+                    else:
+                        price = avg_price-(random.random()-0.5)*vola + vola/2
                 elif dist == "t":
-                    price = np.random.standard_t(1)+avg_price+vola/2
+                    if direction == "bid":
+                        price = np.random.standard_t(kwargs["df"])+avg_price-vola/2
+                    else:
+                        price = np.random.standard_t(kwargs["df"])+avg_price+vola/2
                 if price <= 0:
                     continue
                 if direction == "ask":

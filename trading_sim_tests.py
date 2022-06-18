@@ -16,6 +16,7 @@ from tqdm import tqdm
 import matching_engine
 import orderbook
 import sim_traders
+import sim_traders
 import TE_interface
 import trade_reporter
 import trader
@@ -56,10 +57,23 @@ trade_sim.connect_interface(interface)
 
 
 ############################# simulate time periods with random supply and demand #############################
-time_intervals = 50
+time_intervals = 500
 for _ in tqdm(range(time_intervals), position=0, leave=True):
     trade_sim.limit_orders(vola=5)
+    # rarely switch to t distributed limit orders
+    #if np.random.randint(100) > 96:
+    #    trade_sim.limit_orders(dist = "t", df = 5)
+    # rarely switch to t distributed limit orders
+    #if np.random.randint(100) > 90:
+    #    trade_sim.limit_orders(dist = "uniform")
     trade_sim.market_orders(dynamic=False)
     trade_sim.delete_order()
+    
+    
+    ###### end of period ######
     trade_rep.end_period()
+
+
 trade_rep.show_asset_prices()
+avg_ret_A = trade_rep.p_t["A"].pct_change().mean()*100
+print("Average return of stock A is: " + str(avg_ret_A))
